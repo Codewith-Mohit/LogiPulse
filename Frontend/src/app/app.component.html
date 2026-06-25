@@ -1,0 +1,29 @@
+<div style="padding: 20px; font-family: sans-serif;">
+  <h2>LogiPulse - Minimal Order Dispatch</h2>
+  
+  <div style="margin-bottom: 20px;">
+    <input [(ngModel)]="newAddress" placeholder="Enter Delivery Address" style="padding: 8px; width: 250px;" />
+    <button (click)="submitOrder()" style="padding: 8px 15px; margin-left: 10px;">Submit Order</button>
+  </div>
+
+  <h3>Active System Orders</h3>
+  <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; max-width: 600px;">
+    <thead>
+      <tr style="background-color: #f2f2f2;">
+        <th>Order Number</th>
+        <th>Destination</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of orders">
+        <td>{{ order.orderNumber }}</td>
+        <td>{{ order.deliveryAddress }}</td>
+        <td><strong style="color: green;">{{ order.status }}</strong></td>
+      </tr>
+      <tr *ngIf="orders.length === 0">
+        <td colspan="3" style="text-align: center; color: gray;">No orders dispatched yet.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

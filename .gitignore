@@ -1,0 +1,110 @@
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+.history/*
+
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
+
+# System files
+.DS_Store
+Thumbs.db
+ 
+# ==========================
+# .NET / C#
+# ==========================
+# Build Folders
+/**/bin/
+/**/obj/
+bin/
+obj/
+ 
+# VS and Rider
+.vs/
+*.user
+*.suo
+*.userprefs
+.idea/
+ 
+# NuGet
+*.nupkg
+packages/
+ 
+# Publish
+publish/
+artifacts/
+ 
+# Rider caches
+.idea/
+.idea/*
+ 
+# ==========================
+# Docker
+# ==========================
+# Local env files
+.env
+.env.*
+ 
+# Docker Compose local overrides
+docker-compose.override.yml
+docker-compose.*.local.yml
+ 
+# Docker build outputs
+**/Dockerfile
+**/docker-compose.override.yml
+ 
+# ==========================
+# Angular / Node
+# ==========================
+# Node modules and build output
+**/node_modules/
+/1.Frontend/node_modules/
+/1.Frontend/dist/
+/1.Frontend/.angular/
+/1.Frontend/.sass-cache/
+/1.Frontend/coverage/
+ 
+# NPM logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+ 
+# Local Angular build files
+/1.Frontend/out-tsc
+ 
+# Misc
+.cache/
+.parcel-cache/
