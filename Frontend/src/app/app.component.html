@@ -1,29 +1,43 @@
-<div style="padding: 20px; font-family: sans-serif;">
-  <h2>LogiPulse - Minimal Order Dispatch</h2>
+<div style="padding: 20px; font-family: sans-serif; display: flex; gap: 40px;">
   
-  <div style="margin-bottom: 20px;">
-    <input [(ngModel)]="newAddress" placeholder="Enter Delivery Address" style="padding: 8px; width: 250px;" />
-    <button (click)="submitOrder()" style="padding: 8px 15px; margin-left: 10px;">Submit Order</button>
+  <div style="flex: 1;">
+    <h2>1. Logistics Product Catalog</h2>
+    <div *ngFor="let p of products" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+      <strong>{{p.name}}</strong> - ${{p.price}}
+      <button (click)="addToCart(p)" style="float: right;">Add to Cart</button>
+    </div>
+
+    <h2 style="margin-top: 30px;">2. Your Cart ({{cart.length}} items)</h2>
+    <ul>
+      <li *ngFor="let item of cart">{{item.name}} - ${{item.price}}</li>
+    </ul>
+    <h3>Total: ${{ getCartTotal() | number:'1.2-2' }}</h3>
+
+    <div *ngIf="cart.length > 0" style="margin-top: 15px;">
+      <input [(ngModel)]="deliveryAddress" placeholder="Enter Delivery Destination" style="padding: 8px; width: 250px;" />
+      <button (click)="checkout()" style="padding: 8px 15px; margin-left: 10px; background-color: green; color: white;">Submit Checkout</button>
+    </div>
   </div>
 
-  <h3>Active System Orders</h3>
-  <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; max-width: 600px;">
-    <thead>
-      <tr style="background-color: #f2f2f2;">
-        <th>Order Number</th>
-        <th>Destination</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let order of orders">
-        <td>{{ order.orderNumber }}</td>
-        <td>{{ order.deliveryAddress }}</td>
-        <td><strong style="color: green;">{{ order.status }}</strong></td>
-      </tr>
-      <tr *ngIf="orders.length === 0">
-        <td colspan="3" style="text-align: center; color: gray;">No orders dispatched yet.</td>
-      </tr>
-    </tbody>
-  </table>
+  <div style="flex: 1; border-left: 1px solid #eee; padding-left: 20px;">
+    <h2>3. Fulfilled Ecosystem Orders (Order DB)</h2>
+    <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th>Order Number</th>
+          <th>Destination</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of orders">
+          <td>{{ order.orderNumber }}</td>
+          <td>{{ order.deliveryAddress }}</td>
+          <td><strong style="color: orange;">{{ order.status }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <button (click)="loadOrders()" style="margin-top: 15px;">Refresh Live Order State</button>
+  </div>
+
 </div>
