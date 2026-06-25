@@ -1,4 +1,5 @@
 
+using LogiPulse.SharedContracts;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +18,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-string connectionstring = builder.Configuration.GetConnectionString("SQL_CONNECTIONSTRING") 
-?? "Server=localhost,1433;Database=LogiPulseOrders;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;";
+string connectionstring = Environment.GetEnvironmentVariable("SQL_CONNECTIONSTRING") 
+    ?? builder.Configuration.GetConnectionString("SQL_CONNECTIONSTRING") 
+    ?? "Server=localhost,1433;Database=LogiPulseOrders;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;";
 
+Console.WriteLine($">>> [STARTUP] Utilizing Connection String: {connectionstring}");
 builder.Services.AddDbContext<OrderDbContext>(options =>
     options.UseSqlServer(connectionstring));
 
@@ -32,7 +35,7 @@ x.AddConsumer<CheckoutRequestedConsumer>();
 
         x.UsingRabbitMq((context, cfg) =>
         {
-            string host = builder.Configuration.GetValue<string>("RabbitMQ:Host") ?? "localhost";
+            string host = builder.Configuration.GetValue<string>("RabbitMQ_Host") ?? "localhost";
             string user = builder.Configuration.GetValue<string>("RabbitMQ:Username") ?? "guest";
             string pass = builder.Configuration.GetValue<string>("RabbitMQ:Password") ?? "guest";
 
@@ -43,6 +46,7 @@ x.AddConsumer<CheckoutRequestedConsumer>();
             });
 
             // This force-names the exchange, completely bypassing namespace validation!
+            cfg.Message<CheckoutRequestedEvent>(m => m.SetEntityName("logipulse-checkout-requested"));
             cfg.Message<OrderPlacedEvent>(m => m.SetEntityName("logipulse-order-placed"));
 
             cfg.ConfigureEndpoints(context);
@@ -83,5 +87,22 @@ app.MapPost("/api/orders", async ([FromBody] CreateOrderRequest request, OrderDb
 
     return Results.Created($"/api/orders/{newOrder.Id}", newOrder);
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<OrderDbContext>();
+        // This ensures the database exists and applies any pending migrations automatically!
+        await context.Database.MigrateAsync();
+        Console.WriteLine(">>> [DATABASE ENGINE] Migrations applied successfully inside Docker!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($">>> [DATABASE ENGINE] Error creating database: {ex.Message}");
+    }
+}
+
 
 app.Run();

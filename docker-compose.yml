@@ -1,0 +1,101 @@
+networks:
+  logipulse-net:
+    driver: bridge
+
+services:
+  # --- INFRASTRUCTURE LAYER ---
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: logipulse-broker
+    networks:
+      - logipulse-net
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      # Tells Docker how to verify RabbitMQ is actually ready for traffic
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: logipulse-db
+    networks:
+      - logipulse-net
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourStrong@Password123"
+# Tells Docker how to verify SQL Server is ready to accept queries
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1s bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  # --- MICROSERVICES APPLICATION LAYER ---
+  catalog-service:
+    build:
+      context: .
+      dockerfile: CatalogService/Dockerfile
+    container_name: catalog-api
+    networks:
+      - logipulse-net
+    ports:
+      - "5200:5200"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=5200
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  order-service:
+    build:
+      context: .
+      dockerfile: OrderAPIs/Dockerfile
+    container_name: order-api
+    networks:
+      - logipulse-net
+    ports:
+      - "5257:5257"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=5257
+      - RABBITMQ_HOST=rabbitmq
+      - SQL_CONNECTIONSTRING=Server=sqlserver;Database=LogiPulseOrders;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  fleet-service:
+    build:
+      context: .
+      dockerfile: FleetService/Dockerfile
+    container_name: fleet-worker
+    networks:
+      - logipulse-net
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+      #---- Frontend Layer ----
+  frontend-ui:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+    container_name: logipulse-ui
+    networks:
+      - logipulse-net
+    ports:
+      - "4200:80" # Map port 4200 on your machine to port 80 inside Nginx
+    depends_on:
+      - catalog-service
+      - order-service

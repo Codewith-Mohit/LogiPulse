@@ -9,12 +9,12 @@ interface Order { id: string; orderNumber: string; deliveryAddress: string; stat
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule], // <-- MUST have both of these here!
+  imports: [CommonModule, FormsModule],
   templateUrl: './app.component.html'
 })
 
 export class AppComponent implements OnInit {
-  catalogUrl = 'http://localhost:5200/api/products'; // Change port if yours differs
+  catalogUrl = 'http://localhost:5200/api/products';
   checkoutUrl = 'http://localhost:5200/api/cart/checkout';
   ordersUrl = 'http://localhost:5257/api/orders';
 
