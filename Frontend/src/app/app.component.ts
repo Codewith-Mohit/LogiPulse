@@ -3,40 +3,58 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-interface Order {
-  id: string;
-  orderNumber: string;
-  deliveryAddress: string;
-  status: string;
-}
+interface Product { id: string; name: string; price: number; }
+interface Order { id: string; orderNumber: string; deliveryAddress: string; status: string; }
+
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, FormsModule], // <-- MUST have both of these here!
   templateUrl: './app.component.html'
 })
+
 export class AppComponent implements OnInit {
-  apiUrl = 'http://localhost:5257/api/orders';
+  catalogUrl = 'http://localhost:5200/api/products'; // Change port if yours differs
+  checkoutUrl = 'http://localhost:5200/api/cart/checkout';
+  ordersUrl = 'http://localhost:5257/api/orders';
+
+  products: Product[] = [];
+  cart: Product[] = [];
   orders: Order[] = [];
-  newAddress: string = '';
+  deliveryAddress: string = '';
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
+    this.loadProducts();
     this.loadOrders();
   }
 
-  loadOrders() {
-    this.http.get<Order[]>(this.apiUrl).subscribe(data => this.orders = data);
+  loadProducts() {
+    this.http.get<Product[]>(this.catalogUrl).subscribe(data => this.products = data);
   }
 
-  submitOrder() {
-    if (!this.newAddress.trim()) return;
+  loadOrders() {
+    this.http.get<Order[]>(this.ordersUrl).subscribe(data => this.orders = data);
+  }
 
-    this.http.post(this.apiUrl, { deliveryAddress: this.newAddress })
-      .subscribe(() => {
-        this.newAddress = '';
-        this.loadOrders(); // Refresh the list
-      });
+  addToCart(product: Product) {
+    this.cart.push(product);
+  }
+
+  getCartTotal() {
+    return this.cart.reduce((sum, item) => sum + item.price, 0);
+  }
+
+  checkout() {
+    if (!this.deliveryAddress.trim() || this.cart.length === 0) return;
+
+    const payload = { deliveryAddress: this.deliveryAddress, totalAmount: this.getCartTotal() };
+    
+    this.http.post(this.checkoutUrl, payload).subscribe(() => {
+      this.cart = [];
+      this.deliveryAddress = '';
+      setTimeout(() => this.loadOrders(), 1000); // Wait for the queue processing to complete
+    });
   }
 }

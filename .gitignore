@@ -108,3 +108,6 @@ yarn-error.log*
 # Misc
 .cache/
 .parcel-cache/
+
+# C# Related 
+launchSettings.json
