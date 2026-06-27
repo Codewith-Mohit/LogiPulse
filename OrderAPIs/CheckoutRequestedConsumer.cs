@@ -1,5 +1,5 @@
 using MassTransit;
-using LogiPulse.SharedContracts;
+using SharedContracts;
 
 namespace OrderAPIs;
 
