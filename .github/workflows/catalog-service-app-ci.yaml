@@ -29,5 +29,8 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest -f CatalogService/Dockerfile .
+          docker build \
+          -t ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest \
+          -f LogiPulse/CatalogService/Dockerfile \
+          ./LogiPulse
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest
