@@ -28,7 +28,7 @@ builder.Services.AddMassTransit(x =>
 var app = builder.Build();
 app.UseCors();
 
-// Dummy product catalog database substitute
+// Dummy product catalog database substitute ---
 var products = new List<ProductDto>
 {
     new(Guid.NewGuid(), "Industrial Drone Battery", 299.99m),
