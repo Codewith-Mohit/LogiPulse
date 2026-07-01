@@ -23,13 +23,11 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          authentication-method: oidc
-          authentication-type: service-principal
 
       - name: Log into Private ACR
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest -f CatalogService/Dockerfile .
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest -f ./CatalogService/Dockerfile .
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest
