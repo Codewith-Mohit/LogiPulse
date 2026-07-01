@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
 
         services.AddMassTransit(x =>
         {
+            x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("order-api", false));
             x.AddConsumer<OrderPlacedConsumer>();
             x.AddConsumer<CheckoutRequestedConsumer>();
             x.AddConsumer<OrderDeliveredConsumer>();

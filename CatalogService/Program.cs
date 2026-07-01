@@ -1,7 +1,7 @@
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using CatalogService;
-using LogiPulse.SharedContracts;
+using SharedContracts;
 
 var builder = WebApplication.CreateBuilder(args);
 

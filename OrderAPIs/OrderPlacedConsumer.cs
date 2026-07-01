@@ -1,4 +1,5 @@
 using MassTransit;
+using SharedContracts;
 
 namespace OrderAPIs;
 

@@ -1,5 +1,7 @@
 namespace FleetService;
-using MassTransit;  
+using MassTransit;
+using SharedContracts;
+
 public class OrderPlacedConsumer : IConsumer<OrderPlacedEvent>
 {
     public Task Consume(ConsumeContext<OrderPlacedEvent> context)
@@ -8,5 +10,3 @@ public class OrderPlacedConsumer : IConsumer<OrderPlacedEvent>
         return Task.CompletedTask;
     }
 }
-
-public record OrderPlacedEvent(Guid OrderId, string OrderNumber, string DeliveryAddress);
