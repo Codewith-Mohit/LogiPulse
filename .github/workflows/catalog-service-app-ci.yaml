@@ -27,7 +27,7 @@ jobs:
       - name: Log into Private ACR
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
-      - name: Build and Push Docker Image #changed path in variable
+      - name: Build and Push Docker Image #changed path in variable..
         run: |
           docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest -f ./CatalogService/Dockerfile .
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest
