@@ -1,10 +1,12 @@
 using MassTransit;
 using FleetService;
+using SharedContracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMassTransit(x =>
 {
+    x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("fleet", false));
     x.AddConsumer<OrderPlacedConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
@@ -19,10 +21,11 @@ builder.Services.AddMassTransit(x =>
                 h.Password(pass);
             });
 
+        cfg.Message<OrderPlacedEvent>(m => m.SetEntityName("logipulse-order-placed"));
+
         cfg.ConfigureEndpoints(context);
     });
 });
 
 var app = builder.Build();
 app.Run();
-

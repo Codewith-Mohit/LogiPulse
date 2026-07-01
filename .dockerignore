@@ -1,0 +1,13 @@
+.git
+.agents
+.codex
+
+**/bin/
+**/obj/
+
+Frontend/.angular/
+Frontend/dist/
+Frontend/node_modules/
+
+**/.DS_Store
+**/*.user

@@ -67,6 +67,10 @@ services:
       - ASPNETCORE_HTTP_PORTS=5257
       - RABBITMQ_HOST=rabbitmq
       - SQL_CONNECTIONSTRING=Server=sqlserver;Database=LogiPulseOrders;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+      - JWT_SECRET=${JWT_SECRET:-YourSuperSecretKeyThatIsAtLeast32CharactersLong!}
+      - JWT_ISSUER=${JWT_ISSUER:-logipulse}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-logipulse-api}
+      - JWT_EXPIRY_MINUTES=${JWT_EXPIRY_MINUTES:-60}
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -86,6 +90,19 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  notificationservice:
+    image: logipulse-notificationservice
+    container_name: logipulse-notification
+    build:
+      context: .
+      dockerfile: NotifierService/Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - logipulse-net
       #---- Frontend Layer ----
   frontend-ui:
     build:
