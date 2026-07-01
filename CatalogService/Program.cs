@@ -44,6 +44,6 @@ app.MapPost("/api/cart/checkout", async ([FromBody] CheckoutRequest request, IPu
     await publishEndpoint.Publish(new CheckoutRequestedEvent(request.DeliveryAddress, request.TotalAmount));
     return Results.Accepted();
 });
-
+//anycommentcheck
 app.Run();
 
