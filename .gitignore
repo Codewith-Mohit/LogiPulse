@@ -83,7 +83,6 @@ docker-compose.override.yml
 docker-compose.*.local.yml
  
 # Docker build outputs
-**/Dockerfile
 **/docker-compose.override.yml
  
 # ==========================

@@ -1,36 +1,20 @@
-name: CI-CD Catalog Service
+name: CI-CD Catalog Service (Local k3d)
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'CatalogService/**' # Triggers only if files in this directory change
+      - 'CatalogService/**'
+      - '.github/workflows/catalog-service-app-ci.yaml'
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
+  build-and-deploy:
+    uses: ./.github/workflows/reusable-local-k3d-deploy.yml
+    with:
+      image_name: logipulse-catalog-service
+      dockerfile_path: CatalogService/Dockerfile
+      release_name: catalog-service
 
-      - name: Authenticate with Azure OIDC
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Log into Private ACR
-        run: az acr login --name ${{ secrets.ACR_NAME }}
-
-      - name: Build and Push Docker Image #changed path in variable..
-        run: |
-          docker build \
-          -t ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest \
-          -f LogiPulse/CatalogService/Dockerfile \
-          ./LogiPulse
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-catalog-service:latest
