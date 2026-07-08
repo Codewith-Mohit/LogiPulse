@@ -1,34 +1,21 @@
-name: CI-CD Order API
+name: CI-CD LogiPluse API Service (Local k3d)
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'OrderAPIs/**'      # Trigger ONLY if files change inside this folder
-      - 'SharedContracts/**' # Trigger if shared dependencies change
+      - 'OrderAPIs/**'
+      - 'SharedContracts/**'
+      - '.github/workflows/order-api-app-ci.yaml'
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+  build-and-deploy:
+    uses: ./.github/workflows/reusable-local-k3d-deploy.yml
+    with:
+      image_name: logipulse-order-api
+      dockerfile_path: OrderAPIs/Dockerfile
+      release_name: order-api
 
-      - name: Login to Azure OIDC
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Login to ACR
-        run: az acr login --name ${{ secrets.ACR_NAME }}
-
-      - name: Build and Push Order API Image
-        run: |
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-order-api:latest -f OrderAPIs/Dockerfile .
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/logipulse-order-api:latest

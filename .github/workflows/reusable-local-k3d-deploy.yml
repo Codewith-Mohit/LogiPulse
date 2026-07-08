@@ -1,0 +1,63 @@
+name: Reusable Local k3d Deploy
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      dockerfile_path:
+        required: true
+        type: string
+      release_name:
+        required: true
+        type: string
+      chart_path:
+        required: false
+        type: string
+        default: ../logipulse-k8s/charts/logipulse-service
+      cluster_name:
+        required: false
+        type: string
+        default: logipulse-cluster
+      namespace:
+        required: false
+        type: string
+        default: logipulse
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Verify local Kubernetes tools
+        run: |
+          kubectl version --client
+          helm version
+          k3d version
+
+      - name: Build Docker image
+        run: |
+          docker build -t "${{ inputs.image_name }}:${{ github.sha }}" -t "${{ inputs.image_name }}:latest" -f "${{ inputs.dockerfile_path }}" .
+
+      - name: Import image into k3d cluster
+        run: |
+          k3d image import "${{ inputs.image_name }}:${{ github.sha }}" "${{ inputs.image_name }}:latest" -c "${{ inputs.cluster_name }}"
+
+      - name: Ensure namespace exists
+        run: |
+          kubectl create namespace "${{ inputs.namespace }}" --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy updated release
+        run: |
+          helm upgrade --install "${{ inputs.release_name }}" "${{ inputs.chart_path }}" -n "${{ inputs.namespace }}" --wait --timeout 5m --set image.tag="${{ github.sha }}"
+
+      - name: Show rollout status
+        run: |
+          kubectl get pods -n "${{ inputs.namespace }}"
+          kubectl get svc -n "${{ inputs.namespace }}"
